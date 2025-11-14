@@ -21,7 +21,7 @@ namespace Eigen {
 
 // On WINCE, std::abs is defined for int only, so let's defined our own overloads:
 // This issue has been confirmed with MSVC 2008 only, but the issue might exist for more recent versions too.
-#if EIGEN_OS_WINCE && EIGEN_COMP_MSVC && EIGEN_COMP_MSVC<=1500
+#if EIGEN_OS_WINCE && EIGEN_COMP_MSVC && EIGEN_COMP_MSVC<=1500 && !defined(EIGEN_FREESTANDING)
 long        abs(long        x) { return (labs(x));  }
 double      abs(double      x) { return (fabs(x));  }
 float       abs(float       x) { return (fabsf(x)); }
@@ -85,6 +85,7 @@ struct real_default_impl
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct real_default_impl<Scalar,true>
 {
@@ -96,9 +97,11 @@ struct real_default_impl<Scalar,true>
     return real(x);
   }
 };
+#endif
 
 template<typename Scalar> struct real_impl : real_default_impl<Scalar> {};
 
+#ifndef EIGEN_FREESTANDING
 #if defined(EIGEN_GPU_COMPILE_PHASE)
 template<typename T>
 struct real_impl<std::complex<T> >
@@ -110,6 +113,7 @@ struct real_impl<std::complex<T> >
     return x.real();
   }
 };
+#endif
 #endif
 
 template<typename Scalar>
@@ -133,6 +137,7 @@ struct imag_default_impl
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct imag_default_impl<Scalar,true>
 {
@@ -144,9 +149,11 @@ struct imag_default_impl<Scalar,true>
     return imag(x);
   }
 };
+#endif
 
 template<typename Scalar> struct imag_impl : imag_default_impl<Scalar> {};
 
+#ifndef EIGEN_FREESTANDING
 #if defined(EIGEN_GPU_COMPILE_PHASE)
 template<typename T>
 struct imag_impl<std::complex<T> >
@@ -158,6 +165,7 @@ struct imag_impl<std::complex<T> >
     return x.imag();
   }
 };
+#endif
 #endif
 
 template<typename Scalar>
@@ -250,6 +258,7 @@ struct conj_default_impl
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct conj_default_impl<Scalar,true>
 {
@@ -260,6 +269,7 @@ struct conj_default_impl<Scalar,true>
     return conj(x);
   }
 };
+#endif
 
 template<typename Scalar, bool IsComplex = NumTraits<Scalar>::IsComplex>
 struct conj_impl : conj_default_impl<Scalar, IsComplex> {};
@@ -285,6 +295,7 @@ struct abs2_impl_default
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct abs2_impl_default<Scalar, true> // IsComplex
 {
@@ -295,6 +306,7 @@ struct abs2_impl_default<Scalar, true> // IsComplex
     return x.real()*x.real() + x.imag()*x.imag();
   }
 };
+#endif
 
 template<typename Scalar>
 struct abs2_impl
@@ -329,10 +341,13 @@ struct sqrt_impl
 };
 
 // Complex sqrt defined in MathFunctionsImpl.h.
+#ifndef EIGEN_FREESTANDING
 template<typename T> EIGEN_DEVICE_FUNC std::complex<T> complex_sqrt(const std::complex<T>& a_x);
+#endif
 
 // Custom implementation is faster than `std::sqrt`, works on
 // GPU, and correctly handles special cases (unlike MSVC).
+#ifndef EIGEN_FREESTANDING
 template<typename T>
 struct sqrt_impl<std::complex<T> >
 {
@@ -342,6 +357,7 @@ struct sqrt_impl<std::complex<T> >
     return complex_sqrt<T>(x);
   }
 };
+#endif
 
 template<typename Scalar>
 struct sqrt_retval
@@ -353,6 +369,7 @@ struct sqrt_retval
 template<typename T>
 struct rsqrt_impl;
 
+#ifndef EIGEN_FREESTANDING
 // Complex rsqrt defined in MathFunctionsImpl.h.
 template<typename T> EIGEN_DEVICE_FUNC std::complex<T> complex_rsqrt(const std::complex<T>& a_x);
 
@@ -365,6 +382,7 @@ struct rsqrt_impl<std::complex<T> >
     return complex_rsqrt<T>(x);
   }
 };
+#endif
 
 template<typename Scalar>
 struct rsqrt_retval
@@ -379,6 +397,7 @@ struct rsqrt_retval
 template<typename Scalar, bool IsComplex>
 struct norm1_default_impl;
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct norm1_default_impl<Scalar,true>
 {
@@ -390,6 +409,7 @@ struct norm1_default_impl<Scalar,true>
     return abs(x.real()) + abs(x.imag());
   }
 };
+#endif
 
 template<typename Scalar>
 struct norm1_default_impl<Scalar, false>
@@ -582,6 +602,7 @@ template<typename Scalar,
                             || is_same<Scalar, long double>::value >
 struct arg_default_impl;
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct arg_default_impl<Scalar, true> {
   typedef typename NumTraits<Scalar>::Real RealScalar;
@@ -597,6 +618,7 @@ struct arg_default_impl<Scalar, true> {
     return static_cast<RealScalar>(arg(x));
   }
 };
+#endif
 
 // Must be non-complex floating-point type (e.g. half/bfloat16).
 template<typename Scalar>
@@ -620,6 +642,7 @@ struct arg_default_impl
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct arg_default_impl<Scalar,true>
 {
@@ -631,6 +654,7 @@ struct arg_default_impl<Scalar,true>
     return arg(x);
   }
 };
+#endif
 #endif
 template<typename Scalar> struct arg_impl : arg_default_impl<Scalar> {};
 
@@ -695,7 +719,9 @@ struct expm1_retval
 ****************************************************************************/
 
 // Complex log defined in MathFunctionsImpl.h.
+#ifndef EIGEN_FREESTANDING
 template<typename T> EIGEN_DEVICE_FUNC std::complex<T> complex_log(const std::complex<T>& z);
+#endif
 
 template<typename Scalar>
 struct log_impl {
@@ -706,6 +732,7 @@ struct log_impl {
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar>
 struct log_impl<std::complex<Scalar> > {
   EIGEN_DEVICE_FUNC static inline std::complex<Scalar> run(const std::complex<Scalar>& z)
@@ -713,6 +740,7 @@ struct log_impl<std::complex<Scalar> > {
     return complex_log(z);
   }
 };
+#endif
 
 /****************************************************************************
 * Implementation of log1p                                                   *
@@ -749,6 +777,7 @@ struct log1p_impl {
 };
 
 // Specialization for complex types that are not supported by std::log1p.
+#ifndef EIGEN_FREESTANDING
 template <typename RealScalar>
 struct log1p_impl<std::complex<RealScalar> > {
   EIGEN_DEVICE_FUNC static inline std::complex<RealScalar> run(
@@ -757,6 +786,7 @@ struct log1p_impl<std::complex<RealScalar> > {
     return std_fallback::log1p(x);
   }
 };
+#endif
 
 template<typename Scalar>
 struct log1p_retval
@@ -804,6 +834,7 @@ struct pow_impl<ScalarX,ScalarY, true>
 * Implementation of random                                               *
 ****************************************************************************/
 
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar,
          bool IsComplex,
          bool IsInteger>
@@ -952,6 +983,7 @@ inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random()
 {
   return EIGEN_MATHFUNC_IMPL(random, Scalar)::run();
 }
+#endif
 
 // Implementation of is* functions
 
@@ -1064,9 +1096,11 @@ template<> EIGEN_TMP_NOOPT_ATTRIB bool isinf_impl(const long double& x) { return
 #endif
 
 // The following overload are defined at the end of this file
+#ifndef EIGEN_FREESTANDING
 template<typename T> EIGEN_DEVICE_FUNC bool isfinite_impl(const std::complex<T>& x);
 template<typename T> EIGEN_DEVICE_FUNC bool isnan_impl(const std::complex<T>& x);
 template<typename T> EIGEN_DEVICE_FUNC bool isinf_impl(const std::complex<T>& x);
+#endif
 
 template<typename T> T generic_fast_tanh_float(const T& a_x);
 } // end namespace internal
@@ -1310,6 +1344,7 @@ EIGEN_ALWAYS_INLINE double absdiff(const double& x, const double& y)
   return fabs(x - y);
 }
 
+#ifndef EIGEN_FREESTANDING
 #if !defined(EIGEN_GPUCC)
 // HIP and CUDA do not support long double.
 template<>
@@ -1317,6 +1352,7 @@ EIGEN_DEVICE_FUNC
 EIGEN_ALWAYS_INLINE long double absdiff(const long double& x, const long double& y) {
   return fabsl(x - y);
 }
+#endif
 #endif
 
 template<typename Scalar>
@@ -1530,6 +1566,7 @@ float abs(const float &x) { return ::fabsf(x); }
 template<> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 double abs(const double &x) { return ::fabs(x); }
 
+#ifndef EIGEN_FREESTANDING
 template <> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 float abs(const std::complex<float>& x) {
   return ::hypotf(x.real(), x.imag());
@@ -1539,6 +1576,7 @@ template <> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 double abs(const std::complex<double>& x) {
   return ::hypot(x.real(), x.imag());
 }
+#endif
 #endif
 
 template<typename T>
@@ -1559,6 +1597,7 @@ float exp(const float &x) { return ::expf(x); }
 template<> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 double exp(const double &x) { return ::exp(x); }
 
+#ifndef EIGEN_FREESTANDING
 template<> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 std::complex<float> exp(const std::complex<float>& x) {
   float com = ::expf(x.real());
@@ -1574,6 +1613,7 @@ std::complex<double> exp(const std::complex<double>& x) {
   double res_imag = com * ::sin(x.imag());
   return std::complex<double>(res_real, res_imag);
 }
+#endif
 #endif
 
 template<typename Scalar>
@@ -1848,6 +1888,7 @@ double fmod(const double& a, const double& b) {
 
 namespace internal {
 
+#ifndef EIGEN_FREESTANDING
 template<typename T>
 EIGEN_DEVICE_FUNC bool isfinite_impl(const std::complex<T>& x)
 {
@@ -1865,6 +1906,7 @@ EIGEN_DEVICE_FUNC bool isinf_impl(const std::complex<T>& x)
 {
   return ((numext::isinf)(numext::real(x)) || (numext::isinf)(numext::imag(x))) && (!(numext::isnan)(x));
 }
+#endif
 
 /****************************************************************************
 * Implementation of fuzzy comparisons                                       *
@@ -1961,6 +2003,7 @@ inline bool isApproxOrLessThan(const Scalar& x, const Scalar& y,
 ***  The special case of the  bool type ***
 ******************************************/
 
+#ifndef EIGEN_FREESTANDING
 template<> struct random_impl<bool>
 {
   static inline bool run()
@@ -1973,6 +2016,7 @@ template<> struct random_impl<bool>
     return random<int>(a, b)==0 ? false : true;
   }
 };
+#endif
 
 template<> struct scalar_fuzzy_impl<bool>
 {
@@ -2004,6 +2048,7 @@ template<> struct scalar_fuzzy_impl<bool>
 namespace internal {
 
 // Specialization for complex types that are not supported by std::expm1.
+#ifndef EIGEN_FREESTANDING
 template <typename RealScalar>
 struct expm1_impl<std::complex<RealScalar> > {
   EIGEN_DEVICE_FUNC static inline std::complex<RealScalar> run(
@@ -2029,6 +2074,7 @@ struct expm1_impl<std::complex<RealScalar> > {
     return std::complex<RealScalar>(real_part, er * s);
   }
 };
+#endif
 
 template<typename T>
 struct rsqrt_impl {
@@ -2038,6 +2084,7 @@ struct rsqrt_impl {
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 #if defined(EIGEN_GPU_COMPILE_PHASE)
 template<typename T>
 struct conj_impl<std::complex<T>, true>
@@ -2048,6 +2095,7 @@ struct conj_impl<std::complex<T>, true>
     return std::complex<T>(numext::real(x), -numext::imag(x));
   }
 };
+#endif
 #endif
 
 } // end namespace internal
