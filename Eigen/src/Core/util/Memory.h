@@ -114,8 +114,12 @@ EIGEN_DEVICE_FUNC inline void* handmade_aligned_malloc(std::size_t size, std::si
 EIGEN_DEVICE_FUNC inline void handmade_aligned_free(void *ptr)
 {
   if (ptr) {
-    EIGEN_USING_STD(free)
-    free(*(reinterpret_cast<void**>(ptr) - 1));
+    #ifdef EIGEN_NO_MALLOC
+      eigen_assert(false && "heap deallocation is forbidden (EIGEN_NO_MALLOC is defined)");
+    #else
+      EIGEN_USING_STD(free)
+      free(*(reinterpret_cast<void**>(ptr) - 1));
+    #endif
   }
 }
 
