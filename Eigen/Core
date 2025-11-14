@@ -47,12 +47,18 @@
     && !defined(_OVERRIDE_COMPLEX_SPECIALIZATION_)
 #define _OVERRIDE_COMPLEX_SPECIALIZATION_ 1
 #endif
+#ifdef EIGEN_FREESTANDING
+#include <utility>
+#include <initializer_list>
+#else
 #include <complex>
+#endif
 
 // this include file manages BLAS and MKL related macros
 // and inclusion of their respective header files
+#ifndef EIGEN_FREESTANDING
 #include "src/Core/util/MKL_support.h"
-
+#endif
 
 #if defined(EIGEN_HAS_CUDA_FP16) || defined(EIGEN_HAS_HIP_FP16)
   #define EIGEN_HAS_GPU_FP16
@@ -71,7 +77,7 @@
 #endif
 
 // MSVC for windows mobile does not have the errno.h file
-#if !(EIGEN_COMP_MSVC && EIGEN_OS_WINCE) && !EIGEN_COMP_ARM
+#if !(EIGEN_COMP_MSVC && EIGEN_OS_WINCE) && !EIGEN_COMP_ARM && !EIGEN_FREESTANDING
 #define EIGEN_HAS_ERRNO
 #endif
 
@@ -80,15 +86,24 @@
 #endif
 #include <cstddef>
 #include <cstdlib>
+#ifdef EIGEN_FREESTANDING
+#include <assert.h>
+#include "src/Freestanding/freestanding_math.h"
+#else
 #include <cmath>
 #include <cassert>
-#include <functional>
 #include <sstream>
+#endif
+#include <functional>
+#ifndef EIGEN_FREESTANDING
 #ifndef EIGEN_NO_IO
   #include <iosfwd>
 #endif
 #include <cstring>
 #include <string>
+#else
+#include "src/Freestanding/freestanding_string.h"
+#endif
 #include <limits>
 #include <climits> // for CHAR_BIT
 // for min/max:
@@ -173,10 +188,12 @@ using std::ptrdiff_t;
 #include "src/Core/MathFunctionsImpl.h"
 #include "src/Core/arch/Default/ConjHelper.h"
 // Generic half float support
+#ifndef EIGEN_FREESTANDING
 #include "src/Core/arch/Default/Half.h"
 #include "src/Core/arch/Default/BFloat16.h"
 #include "src/Core/arch/Default/TypeCasting.h"
 #include "src/Core/arch/Default/GenericPacketMathFunctionsFwd.h"
+#endif
 
 #if defined EIGEN_VECTORIZE_AVX512
   #include "src/Core/arch/SSE/PacketMath.h"
@@ -356,7 +373,9 @@ using std::ptrdiff_t;
 #include "src/Core/Select.h"
 #include "src/Core/VectorwiseOp.h"
 #include "src/Core/PartialReduxEvaluator.h"
+#ifndef EIGEN_FREESTANDING
 #include "src/Core/Random.h"
+#endif
 #include "src/Core/Replicate.h"
 #include "src/Core/Reverse.h"
 #include "src/Core/ArrayWrapper.h"

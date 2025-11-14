@@ -33,6 +33,18 @@
 #define EIGEN_DEFAULT_DENSE_INDEX_TYPE std::ptrdiff_t
 #endif
 
+// C++ freestanding implementation configuration
+#ifdef EIGEN_FREESTANDING
+#define EIGEN_NO_IO 1
+#define EIGEN_MAX_CPP_VER 23 // For GNAT Pro 25
+#define EIGEN_NO_MALLOC 1 // forbid all dynamic allocation
+#define EIGEN_FAST_MATH 0
+#define EIGEN_DONT_VECTORIZE 1
+// #define EIGEN_RUNTIME_NO_MALLOC 1 // detect alloc at runtime with Eigen::internal::set_is_malloc_allowed(false);
+// ^ https://www.youtube.com/watch?v=4bzlMmd67WM&t=18s
+#define EIGEN_USE_MKL_ALL 0
+#endif
+
 // Upperbound on the C++ version to use.
 // Expected values are 03, 11, 14, 17, etc.
 // By default, let's use an arbitrarily large C++ version.
@@ -676,6 +688,7 @@
 
 // Does the compiler support C99?
 // Need to include <cmath> to make sure _GLIBCXX_USE_C99 gets defined
+#ifndef EIGEN_FREESTANDING
 #include <cmath>
 #ifndef EIGEN_HAS_C99_MATH
 #if EIGEN_MAX_CPP_VER>=11 && \
@@ -686,6 +699,7 @@
   #define EIGEN_HAS_C99_MATH 1
 #else
   #define EIGEN_HAS_C99_MATH 0
+#endif
 #endif
 #endif
 
