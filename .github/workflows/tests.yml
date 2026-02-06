@@ -1,0 +1,160 @@
+name: Test Matrix
+
+on:
+  # GitLab executes the equivalent jobs on schedules; add `schedule` here when ready.
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+env:
+  BUILDDIR: builddir
+  EIGEN_CI_CMAKE_GENEATOR: Ninja
+  EIGEN_CI_ADDITIONAL_ARGS: ""
+
+jobs:
+  tests:
+    name: test (${{ matrix.name }})
+    runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:18.04
+    continue-on-error: ${{ matrix.allow_failure }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Extend with aarch64 and ppc64le entries once matching self-hosted runners are registered.
+        include:
+          - name: x86_64-gcc-4.8-cxx11-off-official
+            cc: gcc-4.8
+            cxx: g++-4.8
+            cxx11: "off"
+            test_label: Official
+            allow_failure: false
+          - name: x86_64-gcc-4.8-cxx11-off-unsupported
+            cc: gcc-4.8
+            cxx: g++-4.8
+            cxx11: "off"
+            test_label: Unsupported
+            allow_failure: false
+          - name: x86_64-gcc-4.8-cxx11-on-official
+            cc: gcc-4.8
+            cxx: g++-4.8
+            cxx11: "on"
+            test_label: Official
+            allow_failure: false
+          - name: x86_64-gcc-4.8-cxx11-on-unsupported
+            cc: gcc-4.8
+            cxx: g++-4.8
+            cxx11: "on"
+            test_label: Unsupported
+            allow_failure: false
+          - name: x86_64-gcc-9-cxx11-off-official
+            cc: gcc-9
+            cxx: g++-9
+            cxx11: "off"
+            test_label: Official
+            allow_failure: false
+          - name: x86_64-gcc-9-cxx11-off-unsupported
+            cc: gcc-9
+            cxx: g++-9
+            cxx11: "off"
+            test_label: Unsupported
+            allow_failure: false
+          - name: x86_64-gcc-9-cxx11-on-official
+            cc: gcc-9
+            cxx: g++-9
+            cxx11: "on"
+            test_label: Official
+            allow_failure: false
+          - name: x86_64-gcc-9-cxx11-on-unsupported
+            cc: gcc-9
+            cxx: g++-9
+            cxx11: "on"
+            test_label: Unsupported
+            allow_failure: false
+          - name: x86_64-gcc-10-cxx11-off-official
+            cc: gcc-10
+            cxx: g++-10
+            cxx11: "off"
+            test_label: Official
+            allow_failure: true
+          - name: x86_64-gcc-10-cxx11-off-unsupported
+            cc: gcc-10
+            cxx: g++-10
+            cxx11: "off"
+            test_label: Unsupported
+            allow_failure: false
+          - name: x86_64-gcc-10-cxx11-on-official
+            cc: gcc-10
+            cxx: g++-10
+            cxx11: "on"
+            test_label: Official
+            allow_failure: true
+          - name: x86_64-gcc-10-cxx11-on-unsupported
+            cc: gcc-10
+            cxx: g++-10
+            cxx11: "on"
+            test_label: Unsupported
+            allow_failure: true
+          - name: x86_64-clang-10-cxx11-off-official
+            cc: clang-10
+            cxx: clang++-10
+            cxx11: "off"
+            test_label: Official
+            allow_failure: false
+          - name: x86_64-clang-10-cxx11-off-unsupported
+            cc: clang-10
+            cxx: clang++-10
+            cxx11: "off"
+            test_label: Unsupported
+            allow_failure: false
+          - name: x86_64-clang-10-cxx11-on-official
+            cc: clang-10
+            cxx: clang++-10
+            cxx11: "on"
+            test_label: Official
+            allow_failure: false
+          - name: x86_64-clang-10-cxx11-on-unsupported
+            cc: clang-10
+            cxx: clang++-10
+            cxx11: "on"
+            test_label: Unsupported
+            allow_failure: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update -y
+          apt-get install -y --no-install-recommends software-properties-common
+          add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          apt-get update -y
+          apt-get install -y --no-install-recommends "${{ matrix.cxx }}" "${{ matrix.cc }}" cmake ninja-build xsltproc
+
+      - name: Configure
+        run: |
+          mkdir -p "$BUILDDIR"
+          cd "$BUILDDIR"
+          CC="${{ matrix.cc }}" CXX="${{ matrix.cxx }}" cmake -G "$EIGEN_CI_CMAKE_GENEATOR" -DEIGEN_TEST_CXX11="${{ matrix.cxx11 }}" $EIGEN_CI_ADDITIONAL_ARGS ..
+
+      - name: Build tests
+        run: |
+          cd "$BUILDDIR"
+          cmake --build . --target buildtests
+
+      - name: Run label ${{ matrix.test_label }}
+        run: |
+          cd "$BUILDDIR"
+          ctest --output-on-failure --no-compress-output --build-no-clean -T test -L "${{ matrix.test_label }}"
+
+      - name: Convert CTest logs to JUnit
+        run: |
+          cd "$BUILDDIR"
+          TAG=$(head -n 1 < Testing/TAG)
+          xsltproc ../ci/CTest2JUnit.xsl "Testing/$TAG/Test.xml" > "JUnitTestResults_${{ matrix.name }}.xml"
+
+      - name: Upload JUnit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ matrix.name }}
+          path: ${{ env.BUILDDIR }}/JUnitTestResults_${{ matrix.name }}.xml
+          if-no-files-found: error
