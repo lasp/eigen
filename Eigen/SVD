@@ -35,7 +35,9 @@
 #include "src/SVD/UpperBidiagonalization.h"
 #include "src/SVD/SVDBase.h"
 #include "src/SVD/JacobiSVD.h"
+#ifndef EIGEN_FREESTANDING
 #include "src/SVD/BDCSVD.h"
+#endif
 #if defined(EIGEN_USE_LAPACKE) && !defined(EIGEN_USE_LAPACKE_STRICT)
 #ifdef EIGEN_USE_MKL
 #include "mkl_lapacke.h"

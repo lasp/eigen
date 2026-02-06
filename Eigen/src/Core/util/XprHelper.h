@@ -711,6 +711,7 @@ struct scalar_div_cost {
   enum { value = 8*NumTraits<T>::MulCost };
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename T,bool Vectorized>
 struct scalar_div_cost<std::complex<T>, Vectorized> {
   enum { value = 2*scalar_div_cost<T>::value
@@ -718,7 +719,7 @@ struct scalar_div_cost<std::complex<T>, Vectorized> {
                + 3*NumTraits<T>::AddCost
   };
 };
-
+#endif
 
 template<bool Vectorized>
 struct scalar_div_cost<signed long,Vectorized,typename conditional<sizeof(long)==8,void,false_type>::type> { enum { value = 24 }; };

@@ -543,6 +543,7 @@ public:
 
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename RealScalar, bool _ConjLhs, int Arch, int _PacketSize>
 class gebp_traits<std::complex<RealScalar>, RealScalar, _ConjLhs, false, Arch, _PacketSize>
 {
@@ -677,6 +678,7 @@ public:
 
 protected:
 };
+#endif
 
 template<typename Packet>
 struct DoublePacket
@@ -706,6 +708,7 @@ predux_half_dowto4(const DoublePacket<Packet> &a,
   return a;
 }
 
+#ifndef EIGEN_FREESTANDING
 template<typename Packet>
 DoublePacket<typename unpacket_traits<Packet>::half>
 predux_half_dowto4(const DoublePacket<Packet> &a,
@@ -719,6 +722,7 @@ predux_half_dowto4(const DoublePacket<Packet> &a,
   res.second = predux_half_dowto4(CplxPacket(a.second)).v;
   return res;
 }
+#endif
 
 // same here, "quad" actually means "8" in terms of real coefficients
 template<typename Scalar, typename RealPacket>
@@ -754,6 +758,7 @@ template<typename Packet> struct unpacket_traits<DoublePacket<Packet> > {
 //   return res;
 // }
 
+#ifndef EIGEN_FREESTANDING
 template<typename RealScalar, bool _ConjLhs, bool _ConjRhs, int Arch, int _PacketSize>
 class gebp_traits<std::complex<RealScalar>, std::complex<RealScalar>, _ConjLhs, _ConjRhs, Arch, _PacketSize >
 {
@@ -1045,6 +1050,7 @@ public:
 protected:
 
 };
+#endif
 
 /* optimized General packed Block * packed Panel product kernel
  *

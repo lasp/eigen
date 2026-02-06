@@ -332,7 +332,9 @@ public:
   }
 #endif
 
+#ifndef EIGEN_FREESTANDING
   EIGEN_DEVICE_FUNC static Quaternion UnitRandom();
+#endif
 
   template<typename Derived1, typename Derived2>
   EIGEN_DEVICE_FUNC static Quaternion FromTwoVectors(const MatrixBase<Derived1>& a, const MatrixBase<Derived2>& b);
@@ -671,6 +673,7 @@ EIGEN_DEVICE_FUNC inline Derived& QuaternionBase<Derived>::setFromTwoVectors(con
   return derived();
 }
 
+#ifndef EIGEN_FREESTANDING
 /** \returns a random unit quaternion following a uniform distribution law on SO(3)
   *
   * \note The implementation is based on http://planning.cs.uiuc.edu/node198.html
@@ -688,7 +691,7 @@ EIGEN_DEVICE_FUNC Quaternion<Scalar,Options> Quaternion<Scalar,Options>::UnitRan
                b = sqrt(u1);
   return Quaternion (a * sin(u2), a * cos(u2), b * sin(u3), b * cos(u3));
 }
-
+#endif
 
 /** Returns a quaternion representing a rotation between
   * the two arbitrary vectors \a a and \a b. In other words, the built

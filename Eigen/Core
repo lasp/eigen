@@ -30,7 +30,7 @@
 #endif
 
 
-#ifdef EIGEN_EXCEPTIONS
+#if defined(EIGEN_EXCEPTIONS)
   #include <new>
 #endif
 

@@ -996,7 +996,7 @@ EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet ploadt_ro(const typename unpacket_t
 ***************************************************************************/
 
 // Eigen+CUDA does not support complexes.
-#if !defined(EIGEN_GPUCC)
+#if !defined(EIGEN_GPUCC) && !defined(EIGEN_FREESTANDING)
 
 template<> inline std::complex<float> pmul(const std::complex<float>& a, const std::complex<float>& b)
 { return std::complex<float>(a.real()*b.real() - a.imag()*b.imag(), a.imag()*b.real() + a.real()*b.imag()); }

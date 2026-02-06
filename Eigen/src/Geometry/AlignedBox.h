@@ -195,6 +195,7 @@ EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(_Scalar,_AmbientDim)
     return res;
   }
 
+#ifndef EIGEN_FREESTANDING
   /** \returns a random point inside the bounding box sampled with
    * a uniform distribution */
   EIGEN_DEVICE_FUNC inline VectorType sample() const
@@ -212,6 +213,7 @@ EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(_Scalar,_AmbientDim)
     }
     return r;
   }
+#endif
 
   /** \returns true if the point \a p is inside the box \c *this. */
   template<typename Derived>
