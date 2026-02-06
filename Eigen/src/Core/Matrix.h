@@ -504,8 +504,10 @@ EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(int,                  i)
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(float,                f)
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(double,               d)
+#ifndef EIGEN_FREESTANDING
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(std::complex<float>,  cf)
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(std::complex<double>, cd)
+#endif
 
 #undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
 #undef EIGEN_MAKE_TYPEDEFS

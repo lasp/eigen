@@ -31,7 +31,9 @@ protected:
   friend class indexed_based_stl_iterator_base<typename traits::non_const_iterator>;
 public:
   typedef Index difference_type;
+#ifndef EIGEN_FREESTANDING
   typedef std::random_access_iterator_tag iterator_category;
+#endif
 
   indexed_based_stl_iterator_base() EIGEN_NO_THROW : mp_xpr(0), m_index(0) {}
   indexed_based_stl_iterator_base(XprType& xpr, Index index) EIGEN_NO_THROW : mp_xpr(&xpr), m_index(index) {}
@@ -110,7 +112,9 @@ protected:
   friend class indexed_based_stl_reverse_iterator_base<typename traits::non_const_iterator>;
 public:
   typedef Index difference_type;
+#ifndef EIGEN_FREESTANDING
   typedef std::random_access_iterator_tag iterator_category;
+#endif
 
   indexed_based_stl_reverse_iterator_base() : mp_xpr(0), m_index(0) {}
   indexed_based_stl_reverse_iterator_base(XprType& xpr, Index index) : mp_xpr(&xpr), m_index(index) {}
@@ -188,7 +192,9 @@ class pointer_based_stl_iterator
 public:
   typedef Index difference_type;
   typedef typename XprType::Scalar value_type;
+#ifndef EIGEN_FREESTANDING
   typedef std::random_access_iterator_tag iterator_category;
+#endif
   typedef typename internal::conditional<bool(is_lvalue), value_type*, const value_type*>::type pointer;
   typedef typename internal::conditional<bool(is_lvalue), value_type&, const value_type&>::type reference;
 

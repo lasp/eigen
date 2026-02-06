@@ -38,6 +38,7 @@ namespace internal {
 
 // default functor traits for STL functors:
 
+#ifndef EIGEN_FREESTANDING
 template<typename T>
 struct functor_traits<std::multiplies<T> >
 { enum { Cost = NumTraits<T>::MulCost, PacketAccess = false }; };
@@ -101,6 +102,7 @@ struct functor_traits<std::not_equal_to<T> >
 template<typename T>
 struct functor_traits<numext::not_equal_to<T> >
   : functor_traits<std::not_equal_to<T> > {};
+#endif
 
 #if (EIGEN_COMP_CXXVER < 11)
 // std::binder* are deprecated since c++11 and will be removed in c++17
@@ -113,7 +115,7 @@ struct functor_traits<std::binder1st<T> >
 { enum { Cost = functor_traits<T>::Cost, PacketAccess = false }; };
 #endif
 
-#if (EIGEN_COMP_CXXVER < 17)
+#if (EIGEN_COMP_CXXVER < 17) && !defined(EIGEN_FREESTANDING)
 // std::unary_negate is deprecated since c++17 and will be removed in c++20
 template<typename T>
 struct functor_traits<std::unary_negate<T> >

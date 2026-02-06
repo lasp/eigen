@@ -457,7 +457,7 @@ template<typename T, int N> struct array_size<T (&)[N]> {
   enum { value = N };
 };
 
-#if EIGEN_HAS_CXX11
+#if EIGEN_HAS_CXX11 && !defined(EIGEN_FREESTANDING)
 template<typename T, std::size_t N> struct array_size<const std::array<T,N> > {
   enum { value = N };
 };
@@ -788,10 +788,18 @@ bool equal_strict(const X& x,const Y& y) { return x == y; }
 
 #if !defined(EIGEN_GPU_COMPILE_PHASE) || (!defined(EIGEN_CUDA_ARCH) && defined(EIGEN_CONSTEXPR_ARE_DEVICE_FUNC))
 template<> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
+#ifndef EIGEN_FREESTANDING
 bool equal_strict(const float& x,const float& y) { return std::equal_to<float>()(x,y); }
+#else
+bool equal_strict(const float& x,const float& y) { return x == y; }
+#endif
 
 template<> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
+#ifndef EIGEN_FREESTANDING
 bool equal_strict(const double& x,const double& y) { return std::equal_to<double>()(x,y); }
+#else
+bool equal_strict(const double& x,const double& y) { return x == y; }
+#endif
 #endif
 
 template<typename X, typename Y> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
@@ -799,10 +807,19 @@ bool not_equal_strict(const X& x,const Y& y) { return x != y; }
 
 #if !defined(EIGEN_GPU_COMPILE_PHASE) || (!defined(EIGEN_CUDA_ARCH) && defined(EIGEN_CONSTEXPR_ARE_DEVICE_FUNC))
 template<> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
+#ifndef EIGEN_FREESTANDING
 bool not_equal_strict(const float& x,const float& y) { return std::not_equal_to<float>()(x,y); }
+#else
+bool not_equal_strict(const float& x,const float& y) { return x != y; }
+#endif
+
 
 template<> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
+#ifndef EIGEN_FREESTANDING
 bool not_equal_strict(const double& x,const double& y) { return std::not_equal_to<double>()(x,y); }
+#else
+bool not_equal_strict(const double& x,const double& y) { return x != y; }
+#endif
 #endif
 
 } // end namespace numext

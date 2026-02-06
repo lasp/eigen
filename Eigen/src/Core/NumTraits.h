@@ -252,6 +252,7 @@ template<> struct NumTraits<long double>
   static inline long double dummy_precision() { return 1e-15l; }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<typename _Real> struct NumTraits<std::complex<_Real> >
   : GenericNumTraits<std::complex<_Real> >
 {
@@ -272,6 +273,7 @@ template<typename _Real> struct NumTraits<std::complex<_Real> >
   EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
   static inline int digits10() { return NumTraits<Real>::digits10(); }
 };
+#endif
 
 template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 struct NumTraits<Array<Scalar, Rows, Cols, Options, MaxRows, MaxCols> >
@@ -303,6 +305,7 @@ struct NumTraits<Array<Scalar, Rows, Cols, Options, MaxRows, MaxCols> >
   static inline int digits10() { return NumTraits<Scalar>::digits10(); }
 };
 
+#ifndef EIGEN_FREESTANDING
 template<> struct NumTraits<std::string>
   : GenericNumTraits<std::string>
 {
@@ -324,6 +327,7 @@ private:
   static inline std::string infinity();
   static inline std::string quiet_NaN();
 };
+#endif
 
 // Empty specialization for void to allow template specialization based on NumTraits<T>::Real with T==void and SFINAE.
 template<> struct NumTraits<void> {};

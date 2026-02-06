@@ -32,6 +32,11 @@
     // if native static_assert is enabled, let's use it
     #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
 
+  #elif defined(EIGEN_FREESTANDING)
+
+    // if native static_assert is enabled, let's use it
+    #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
+
   #else // not CXX0X
 
     namespace Eigen {

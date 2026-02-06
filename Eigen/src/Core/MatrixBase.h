@@ -111,8 +111,10 @@ template<typename Derived> class MatrixBase
                         CwiseUnaryOp<internal::scalar_conjugate_op<Scalar>, ConstTransposeReturnType>,
                         ConstTransposeReturnType
                      >::type AdjointReturnType;
+#ifndef EIGEN_FREESTANDING
     /** \internal Return type of eigenvalues() */
     typedef Matrix<std::complex<RealScalar>, internal::traits<Derived>::ColsAtCompileTime, 1, ColMajor> EigenvaluesReturnType;
+#endif
     /** \internal the return type of identity */
     typedef CwiseNullaryOp<internal::scalar_identity_op<Scalar>,PlainObject> IdentityReturnType;
     /** \internal the return type of unit vectors */
@@ -362,8 +364,9 @@ template<typename Derived> class MatrixBase
     inline const CompleteOrthogonalDecomposition<PlainObject> completeOrthogonalDecomposition() const;
 
 /////////// Eigenvalues module ///////////
-
+#ifndef EIGEN_FREESTANDING
     inline EigenvaluesReturnType eigenvalues() const;
+#endif
     inline RealScalar operatorNorm() const;
 
 /////////// SVD module ///////////
@@ -454,8 +457,9 @@ template<typename Derived> class MatrixBase
     }
 
 ///////// MatrixFunctions module /////////
-
+#ifndef EIGEN_FREESTANDING
     typedef typename internal::stem_function<Scalar>::type StemFunction;
+#endif
 #define EIGEN_MATRIX_FUNCTION(ReturnType, Name, Description) \
     /** \returns an expression of the matrix Description of \c *this. \brief This function requires the <a href="unsupported/group__MatrixFunctions__Module.html"> unsupported MatrixFunctions module</a>. To compute the coefficient-wise Description use ArrayBase::##Name . */ \
     const ReturnType<Derived> Name() const;
@@ -465,7 +469,9 @@ template<typename Derived> class MatrixBase
 
     EIGEN_MATRIX_FUNCTION(MatrixExponentialReturnValue, exp, exponential)
     /** \brief Helper function for the <a href="unsupported/group__MatrixFunctions__Module.html"> unsupported MatrixFunctions module</a>.*/
+#ifndef EIGEN_FREESTANDING
     const MatrixFunctionReturnValue<Derived> matrixFunction(StemFunction f) const;
+#endif
     EIGEN_MATRIX_FUNCTION(MatrixFunctionReturnValue, cosh, hyperbolic cosine)
     EIGEN_MATRIX_FUNCTION(MatrixFunctionReturnValue, sinh, hyperbolic sine)
 #if EIGEN_HAS_CXX11_MATH
@@ -478,7 +484,9 @@ template<typename Derived> class MatrixBase
     EIGEN_MATRIX_FUNCTION(MatrixSquareRootReturnValue, sqrt, square root)
     EIGEN_MATRIX_FUNCTION(MatrixLogarithmReturnValue, log, logarithm)
     EIGEN_MATRIX_FUNCTION_1(MatrixPowerReturnValue,        pow, power to \c p, const RealScalar& p)
+#ifndef EIGEN_FREESTANDING
     EIGEN_MATRIX_FUNCTION_1(MatrixComplexPowerReturnValue, pow, power to \c p, const std::complex<RealScalar>& p)
+#endif
 
   protected:
     EIGEN_DEFAULT_COPY_CONSTRUCTOR(MatrixBase)

@@ -322,6 +322,7 @@ public:
     }
   };
 
+#ifndef EIGEN_FREESTANDING
   template<typename SubPacket, int n, int idx>
   struct storePacketBlock_helper<SubPacket, std::complex<float>, n, idx>
   {
@@ -372,6 +373,7 @@ public:
     EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void store(const blas_data_mapper<Scalar, Index, StorageOrder, AlignmentType, Incr>*, Index, Index, const PacketBlock<SubPacket, n>& ) const {
     }
   };
+#endif
   // This function stores a PacketBlock on m_data, this approach is really quite slow compare to Incr=1 and should be avoided when possible.
   template<typename SubPacket, int n>
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void storePacketBlock(Index i, Index j, const PacketBlock<SubPacket, n>&block) const {

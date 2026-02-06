@@ -525,6 +525,18 @@ struct MatrixXpr {};
 struct ArrayXpr {};
 
 // An evaluator must define its shape. By default, it can be one of the following:
+#ifdef EIGEN_FREESTANDING
+struct DenseShape             { };
+struct SolverShape            { };
+struct HomogeneousShape       { };
+struct DiagonalShape          { };
+struct BandShape              { };
+struct TriangularShape        { };
+struct SelfAdjointShape       { };
+struct PermutationShape       { };
+struct TranspositionsShape    { };
+struct SparseShape            { };
+#else
 struct DenseShape             { static std::string debugName() { return "DenseShape"; } };
 struct SolverShape            { static std::string debugName() { return "SolverShape"; } };
 struct HomogeneousShape       { static std::string debugName() { return "HomogeneousShape"; } };
@@ -535,6 +547,7 @@ struct SelfAdjointShape       { static std::string debugName() { return "SelfAdj
 struct PermutationShape       { static std::string debugName() { return "PermutationShape"; } };
 struct TranspositionsShape    { static std::string debugName() { return "TranspositionsShape"; } };
 struct SparseShape            { static std::string debugName() { return "SparseShape"; } };
+#endif
 
 namespace internal {
 

@@ -105,6 +105,7 @@ struct hypot_impl
   }
 };
 
+#ifndef EIGEN_FREESTANDING
 // Generic complex sqrt implementation that correctly handles corner cases
 // according to https://en.cppreference.com/w/cpp/numeric/complex/sqrt
 template<typename T>
@@ -192,6 +193,7 @@ EIGEN_DEVICE_FUNC std::complex<T> complex_log(const std::complex<T>& z) {
   T b = atan2(z.imag(), z.real());
   return std::complex<T>(numext::log(a), b);
 }
+#endif
 
 } // end namespace internal
 
