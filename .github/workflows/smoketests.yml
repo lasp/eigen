@@ -1,0 +1,77 @@
+name: Smoketests
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+env:
+  BUILDDIR: builddir
+  EIGEN_CI_CMAKE_GENEATOR: Ninja
+  EIGEN_CI_ADDITIONAL_ARGS: ""
+
+jobs:
+  smoketest:
+    name: smoketest (${{ matrix.name }})
+    runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc-10-cxx11-off
+            cc: gcc-10
+            cxx: g++-10
+            cxx11: "off"
+          - name: gcc-10-cxx11-on
+            cc: gcc-10
+            cxx: g++-10
+            cxx11: "on"
+          - name: clang-10-cxx11-off
+            cc: clang-10
+            cxx: clang++-10
+            cxx11: "off"
+          - name: clang-10-cxx11-on
+            cc: clang-10
+            cxx: clang++-10
+            cxx11: "on"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install toolchain and helpers
+        run: |
+          apt-get update -y
+          apt-get install -y --no-install-recommends software-properties-common
+          add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          apt-get update -y
+          apt-get install -y --no-install-recommends "${{ matrix.cxx }}" "${{ matrix.cc }}" cmake ninja-build xsltproc
+
+      - name: Configure smoketests
+        run: |
+          mkdir -p "$BUILDDIR"
+          cd "$BUILDDIR"
+          CC="${{ matrix.cc }}" CXX="${{ matrix.cxx }}" cmake -G "$EIGEN_CI_CMAKE_GENEATOR" -DEIGEN_TEST_CXX11="${{ matrix.cxx11 }}" $EIGEN_CI_ADDITIONAL_ARGS ..
+
+      - name: Build smoketests target
+        run: |
+          cd "$BUILDDIR"
+          cmake --build . --target buildsmoketests
+
+      - name: Run smoketests
+        run: |
+          cd "$BUILDDIR"
+          ctest --output-on-failure --no-compress-output --build-no-clean -T test -L smoketest
+
+      - name: Convert CTest logs to JUnit
+        run: |
+          cd "$BUILDDIR"
+          TAG=$(head -n 1 < Testing/TAG)
+          xsltproc ../ci/CTest2JUnit.xsl "Testing/$TAG/Test.xml" > "JUnitTestResults_${{ matrix.name }}.xml"
+
+      - name: Upload JUnit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoketest-report-${{ matrix.name }}
+          path: ${{ env.BUILDDIR }}/JUnitTestResults_${{ matrix.name }}.xml
+          if-no-files-found: error
