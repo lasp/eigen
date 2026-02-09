@@ -854,6 +854,7 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
 
 /****************************************************************************/
 
+#ifndef EIGEN_FREESTANDING
 /** \class aligned_allocator
 * \ingroup Core_Module
 *
@@ -925,6 +926,7 @@ public:
     internal::aligned_free(p);
   }
 };
+#endif // EIGEN_FREESTANDING
 
 //---------- Cache sizes ----------
 
