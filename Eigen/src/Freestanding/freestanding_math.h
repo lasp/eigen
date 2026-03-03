@@ -108,6 +108,14 @@ namespace std {
 
     inline double fmod(double numer, double denom) { return ::fmod(numer, denom); }
     inline float fmod(float numer, float denom) { return fmodf(numer, denom); }
+
+    // conj() stubs for freestanding mode.
+    // Eigen's BDCSVD.h uses "using std::conj;" in a template body that GCC 15
+    // checks even when not instantiated (-Wtemplate-body). For real scalar
+    // types (the only types used in freestanding builds), conj is identity.
+    inline float conj(float x) { return x; }
+    inline double conj(double x) { return x; }
+    inline long double conj(long double x) { return x; }
 }
 
 #endif // EIGEN_MATH_H

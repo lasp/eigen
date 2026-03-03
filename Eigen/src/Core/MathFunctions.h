@@ -983,6 +983,19 @@ inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random()
 {
   return EIGEN_MATHFUNC_IMPL(random, Scalar)::run();
 }
+#else
+// Freestanding stubs for internal::random.
+// Eigen's Quaternion.h and AlignedBox.h reference internal::random in template
+// bodies that GCC 15 checks even when not instantiated (-Wtemplate-body).
+// These stubs satisfy the compiler; they are never called at runtime.
+template<typename Scalar>
+struct random_retval { typedef Scalar type; };
+
+template<typename Scalar>
+inline Scalar random(const Scalar&, const Scalar&) { return Scalar(0); }
+
+template<typename Scalar>
+inline Scalar random() { return Scalar(0); }
 #endif
 
 // Implementation of is* functions
