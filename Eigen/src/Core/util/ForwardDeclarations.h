@@ -308,6 +308,7 @@ template<typename Derived> class MatrixLogarithmReturnValue;
 template<typename Derived> class MatrixPowerReturnValue;
 template<typename Derived> class MatrixComplexPowerReturnValue;
 
+#ifndef EIGEN_FREESTANDING
 namespace internal {
 template <typename Scalar>
 struct stem_function
@@ -316,6 +317,7 @@ struct stem_function
   typedef ComplexScalar type(ComplexScalar, int);
 };
 }
+#endif
 
 } // end namespace Eigen
 

@@ -675,6 +675,7 @@ EIGEN_DEVICE_FUNC inline Derived& QuaternionBase<Derived>::setFromTwoVectors(con
   *
   * \note The implementation is based on http://planning.cs.uiuc.edu/node198.html
   */
+#ifndef EIGEN_FREESTANDING
 template<typename Scalar, int Options>
 EIGEN_DEVICE_FUNC Quaternion<Scalar,Options> Quaternion<Scalar,Options>::UnitRandom()
 {
@@ -688,6 +689,7 @@ EIGEN_DEVICE_FUNC Quaternion<Scalar,Options> Quaternion<Scalar,Options>::UnitRan
                b = sqrt(u1);
   return Quaternion (a * sin(u2), a * cos(u2), b * sin(u3), b * cos(u3));
 }
+#endif
 
 
 /** Returns a quaternion representing a rotation between

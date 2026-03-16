@@ -139,10 +139,12 @@ operator*(const MatrixBase<Derived>& matrix, const UniformScaling<Scalar>& s)
 inline UniformScaling<float> Scaling(float s) { return UniformScaling<float>(s); }
 /** Constructs a uniform scaling from scale factor \a s */
 inline UniformScaling<double> Scaling(double s) { return UniformScaling<double>(s); }
+#ifndef EIGEN_FREESTANDING
 /** Constructs a uniform scaling from scale factor \a s */
 template<typename RealScalar>
 inline UniformScaling<std::complex<RealScalar> > Scaling(const std::complex<RealScalar>& s)
 { return UniformScaling<std::complex<RealScalar> >(s); }
+#endif
 
 /** Constructs a 2D axis aligned scaling */
 template<typename Scalar>

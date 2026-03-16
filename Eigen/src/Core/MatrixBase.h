@@ -455,6 +455,7 @@ template<typename Derived> class MatrixBase
 
 ///////// MatrixFunctions module /////////
 
+#ifndef EIGEN_FREESTANDING
     typedef typename internal::stem_function<Scalar>::type StemFunction;
 #define EIGEN_MATRIX_FUNCTION(ReturnType, Name, Description) \
     /** \returns an expression of the matrix Description of \c *this. \brief This function requires the <a href="unsupported/group__MatrixFunctions__Module.html"> unsupported MatrixFunctions module</a>. To compute the coefficient-wise Description use ArrayBase::##Name . */ \
@@ -479,6 +480,7 @@ template<typename Derived> class MatrixBase
     EIGEN_MATRIX_FUNCTION(MatrixLogarithmReturnValue, log, logarithm)
     EIGEN_MATRIX_FUNCTION_1(MatrixPowerReturnValue,        pow, power to \c p, const RealScalar& p)
     EIGEN_MATRIX_FUNCTION_1(MatrixComplexPowerReturnValue, pow, power to \c p, const std::complex<RealScalar>& p)
+#endif // EIGEN_FREESTANDING
 
   protected:
     EIGEN_DEFAULT_COPY_CONSTRUCTOR(MatrixBase)
