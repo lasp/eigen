@@ -1,4 +1,8 @@
-#pragma once
+#ifndef EIGEN_FREESTANDING_STRING_H
+#define EIGEN_FREESTANDING_STRING_H
+
+#if defined(__GNUC__) && defined(__cplusplus) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+
 #include <string.h>
 
 // Move some of the string.h functions into standard namespace to be more cstring-like for Eigen.
@@ -25,3 +29,9 @@ namespace std {
     };
 
 } // namespace std
+
+#else
+#include <cstring>
+#endif // __STDC_HOSTED__
+
+#endif // EIGEN_FREESTANDING_STRING_H
