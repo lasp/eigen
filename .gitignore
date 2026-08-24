@@ -36,3 +36,7 @@ lapack/reference
 .settings
 Makefile
 !ci/build.gitlab-ci.yml
+# The *build* pattern above also matches .github/workflows/build.yml, which
+# silently kept a workflow out of the repository. Nothing under .github/ is a
+# build artefact, so re-include the whole directory.
+!.github/**
