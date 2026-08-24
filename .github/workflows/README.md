@@ -5,7 +5,7 @@ the fork actually needs rather than upstream's full validation matrix.
 
 | Workflow | What it does |
 |---|---|
-| `smoketests.yml` | Builds and runs Eigen's smoke test subset (`cmake/EigenSmokeTestList.cmake`, 105 resolve in the CI configuration) under gcc-13 and clang-18, with `EIGEN_TEST_CXX11` on and off. |
+| `smoketests.yml` | Builds and runs Eigen's smoke test subset (`cmake/EigenSmokeTestList.cmake`, 105 resolve in the CI configuration) under gcc-13, with `EIGEN_TEST_CXX11` on and off. |
 
 Upstream's own CI is GitLab and lives in `.gitlab-ci.yml` plus `ci/`. It still runs
 against upstream; nothing here replaces it.
@@ -45,6 +45,29 @@ ctest -L Official -j "$(nproc)"      # or: -L Unsupported
 Restoring old-compiler coverage (`gcc-4.8`, `clang-10`) needs either a self-hosted
 runner or purpose-built container images published to a registry; it cannot be done
 with the stock hosted images.
+
+## Why there is no clang job
+
+clang-18 cannot compile Eigen 3.4.0's own `meta` test:
+
+```
+Eigen/src/Core/util/Meta.h:250:34: error: allocating an object of abstract class type 'MyInterface'
+  250 |   enum { value = sizeof(test<To>(*ms_from, 0))==sizeof(yes) };
+  ...
+test/meta.cpp:122: note: in instantiation of template class
+                         'Eigen::internal::is_convertible<MyImpl, MyInterface>' requested here
+```
+
+`Eigen::internal::is_convertible` forms an abstract class by value in an
+unevaluated context, which newer clang rejects. Upstream later reworked
+`is_convertible` to defer to `std::is_convertible`; 3.4.0 predates that. Since
+`meta` is in the smoke test list and is the first target built, there is no way to
+keep a clang job without either backporting that rework into this fork or ignoring
+the failure. Neither belongs in CI plumbing, so clang is simply not built here.
+
+gcc-13 is the compiler the downstream flight software uses, so it is the one whose
+breakage would actually matter. If clang coverage is wanted later, backporting the
+upstream `is_convertible` change is the honest fix.
 
 ## Note on `.gitignore`
 

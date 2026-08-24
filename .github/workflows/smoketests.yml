@@ -34,10 +34,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # gcc-13 is what the downstream flight software builds with, so it is
-          # the version that matters most here. clang keeps a second front end in
-          # the loop. gcc-4.8 and clang-10, which the GitLab matrix used, are not
-          # installable on current runner images.
+          # gcc-13 only: it is what the downstream flight software builds with.
+          # gcc-4.8 and clang-10, which the GitLab matrix used, are not installable
+          # on current runner images, and clang-18 cannot build Eigen 3.4.0's `meta`
+          # test at all -- see .github/workflows/README.md.
           - name: gcc-13-cxx11-off
             cc: gcc-13
             cxx: g++-13
@@ -45,14 +45,6 @@ jobs:
           - name: gcc-13-cxx11-on
             cc: gcc-13
             cxx: g++-13
-            cxx11: "on"
-          - name: clang-18-cxx11-off
-            cc: clang-18
-            cxx: clang++-18
-            cxx11: "off"
-          - name: clang-18-cxx11-on
-            cc: clang-18
-            cxx: clang++-18
             cxx11: "on"
     steps:
       - name: Checkout
