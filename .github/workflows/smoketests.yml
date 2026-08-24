@@ -78,7 +78,7 @@ jobs:
       - name: Run smoketests
         run: |
           cd "$BUILDDIR"
-          ctest --output-on-failure --no-compress-output --build-no-clean -T test -L smoketest -j "$(nproc)"
+          ctest --output-on-failure --no-compress-output -T test -L smoketest -j "$(nproc)"
 
       - name: Convert CTest logs to JUnit
         if: always()
