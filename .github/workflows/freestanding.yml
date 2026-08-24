@@ -1,0 +1,37 @@
+name: Freestanding
+
+# Compiles Eigen in the freestanding configuration this fork exists to provide,
+# and in the hosted configuration, failing if the compiler emits anything.
+#
+# This is the only CI here that covers the fork's actual purpose. Upstream's test
+# matrix never defines EIGEN_FREESTANDING, so it cannot catch a defect that only
+# appears in freestanding builds -- which is exactly what the leaked
+# PACKET_DECL_COND* macros were. See .github/scripts/check_freestanding.sh.
+#
+# Cheap enough (two -fsyntax-only compiles) to run on every push.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches: [feature/freestanding]
+  workflow_dispatch:
+
+jobs:
+  freestanding:
+    name: freestanding compile check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install compiler
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends g++-13
+
+      - name: Check freestanding and hosted configurations
+        env:
+          CXX: g++-13
+        run: ./.github/scripts/check_freestanding.sh
