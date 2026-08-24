@@ -940,10 +940,17 @@ public:
   PACKET_DECL_COND_PREFIX(_, Real, _PacketSize);
   PACKET_DECL_COND_SCALAR_PREFIX(_, _PacketSize);
 
+// Without closing the freestanding guard opened above the PACKET_DECL_COND*
+// macros escape Eigen/Core and GeneralMatrixVector.h redefines
+// PACKET_DECL_COND_PREFIX with a different body.
+#endif  // EIGEN_FREESTANDING
+
 #undef PACKET_DECL_COND_SCALAR_PREFIX
 #undef PACKET_DECL_COND_PREFIX
 #undef PACKET_DECL_COND_SCALAR
 #undef PACKET_DECL_COND
+
+#ifndef EIGEN_FREESTANDING
 
   enum {
     ConjLhs = false,
