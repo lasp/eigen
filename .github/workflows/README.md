@@ -1,10 +1,11 @@
 # CI in this fork
 
-This is a LASP fork of Eigen 3.4. The CI here is deliberately small: it covers what
-the fork actually needs rather than upstream's full validation matrix.
+This is a LASP fork of Eigen 3.4 whose purpose is freestanding support, so the CI
+here covers that, not upstream's full validation matrix.
 
 | Workflow | What it does |
 |---|---|
+| `freestanding.yml` | Compiles `Eigen/{Core,Geometry,Eigenvalues,SVD,LU}` in three configurations — freestanding, hosted, and freestanding with `EIGEN_HAS_CXX11_MATH=0` (which approximates a non-x86 target) — and fails on *any* compiler output. Seconds to run. |
 | `smoketests.yml` | Builds and runs Eigen's smoke test subset (`cmake/EigenSmokeTestList.cmake`, 105 resolve in the CI configuration) under gcc-13 with `EIGEN_TEST_CXX11` on and off, and under clang-18 with it on. |
 
 Upstream's own CI is GitLab and lives in `.gitlab-ci.yml` plus `ci/`. It still runs
