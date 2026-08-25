@@ -97,11 +97,15 @@ inline void throw_std_bad_alloc()
 /** \internal Like malloc, but the returned pointer is guaranteed to be 16-byte aligned.
   * Fast, but wastes 16 additional bytes of memory. Does not throw any exception.
   */
+#ifdef EIGEN_NO_MALLOC
+// Deleted rather than defined with an assert body: eigen_assert compiles away
+// under NDEBUG, which left these returning without a value (undefined
+// behaviour, and -Wreturn-type). Deleting them turns heap use into a build
+// error naming the caller.
+EIGEN_DEVICE_FUNC void* handmade_aligned_malloc(std::size_t size, std::size_t alignment = EIGEN_DEFAULT_ALIGN_BYTES) = delete;
+#else
 EIGEN_DEVICE_FUNC inline void* handmade_aligned_malloc(std::size_t size, std::size_t alignment = EIGEN_DEFAULT_ALIGN_BYTES)
 {
-#ifdef EIGEN_NO_MALLOC
-  eigen_assert(false && "heap allocation is forbidden (EIGEN_NO_MALLOC is defined)");
-#else
   eigen_assert(alignment >= sizeof(void*) && (alignment & (alignment-1)) == 0 && "Alignment must be at least sizeof(void*) and a power of 2");
 
   EIGEN_USING_STD(malloc)
@@ -111,32 +115,32 @@ EIGEN_DEVICE_FUNC inline void* handmade_aligned_malloc(std::size_t size, std::si
   void *aligned = reinterpret_cast<void*>((reinterpret_cast<std::size_t>(original) & ~(std::size_t(alignment-1))) + alignment);
   *(reinterpret_cast<void**>(aligned) - 1) = original;
   return aligned;
-#endif
 }
+#endif
 
 /** \internal Frees memory allocated with handmade_aligned_malloc */
+#ifdef EIGEN_NO_MALLOC
+EIGEN_DEVICE_FUNC void handmade_aligned_free(void *ptr) = delete;
+#else
 EIGEN_DEVICE_FUNC inline void handmade_aligned_free(void *ptr)
 {
   if (ptr) {
-    #ifdef EIGEN_NO_MALLOC
-      eigen_assert(false && "heap deallocation is forbidden (EIGEN_NO_MALLOC is defined)");
-    #else
-      EIGEN_USING_STD(free)
-      free(*(reinterpret_cast<void**>(ptr) - 1));
-    #endif
+    EIGEN_USING_STD(free)
+    free(*(reinterpret_cast<void**>(ptr) - 1));
   }
 }
+#endif
 
 /** \internal
   * \brief Reallocates aligned memory.
   * Since we know that our handmade version is based on std::malloc
   * we can use std::realloc to implement efficient reallocation.
   */
+#ifdef EIGEN_NO_MALLOC
+void* handmade_aligned_realloc(void* ptr, std::size_t size, std::size_t = 0) = delete;
+#else
 inline void* handmade_aligned_realloc(void* ptr, std::size_t size, std::size_t = 0)
 {
-#ifdef EIGEN_NO_MALLOC
-  eigen_assert(false && "heap reallocation is forbidden (EIGEN_NO_MALLOC is defined)");
-#else
   if (ptr == 0) return handmade_aligned_malloc(size);
   void *original = *(reinterpret_cast<void**>(ptr) - 1);
   std::ptrdiff_t previous_offset = static_cast<char *>(ptr)-static_cast<char *>(original);
@@ -149,8 +153,8 @@ inline void* handmade_aligned_realloc(void* ptr, std::size_t size, std::size_t =
 
   *(reinterpret_cast<void**>(aligned) - 1) = original;
   return aligned;
-#endif
 }
+#endif
 
 /*****************************************************************************
 *** Implementation of portable aligned versions of malloc/free/realloc     ***
@@ -253,11 +257,11 @@ template<bool Align> EIGEN_DEVICE_FUNC inline void* conditional_aligned_malloc(s
   return aligned_malloc(size);
 }
 
+#ifdef EIGEN_NO_MALLOC
+template<> EIGEN_DEVICE_FUNC void* conditional_aligned_malloc<false>(std::size_t size) = delete;
+#else
 template<> EIGEN_DEVICE_FUNC inline void* conditional_aligned_malloc<false>(std::size_t size)
 {
-#ifdef EIGEN_NO_MALLOC
-  eigen_assert(false && "heap allocation is forbidden (EIGEN_NO_MALLOC is defined)");
-#else
   check_that_malloc_is_allowed();
 
   EIGEN_USING_STD(malloc)
@@ -266,8 +270,8 @@ template<> EIGEN_DEVICE_FUNC inline void* conditional_aligned_malloc<false>(std:
   if(!result && size)
     throw_std_bad_alloc();
   return result;
-#endif
 }
+#endif
 
 /** \internal Frees memory allocated with conditional_aligned_malloc */
 template<bool Align> EIGEN_DEVICE_FUNC inline void conditional_aligned_free(void *ptr)
@@ -275,29 +279,29 @@ template<bool Align> EIGEN_DEVICE_FUNC inline void conditional_aligned_free(void
   aligned_free(ptr);
 }
 
+#ifdef EIGEN_NO_MALLOC
+template<> EIGEN_DEVICE_FUNC void conditional_aligned_free<false>(void *ptr) = delete;
+#else
 template<> EIGEN_DEVICE_FUNC inline void conditional_aligned_free<false>(void *ptr)
 {
-#ifdef EIGEN_NO_MALLOC
-  eigen_assert(false && "heap deallocation is forbidden (EIGEN_NO_MALLOC is defined)");
-#else
   EIGEN_USING_STD(free)
   free(ptr);
-#endif
 }
+#endif
 
 template<bool Align> inline void* conditional_aligned_realloc(void* ptr, std::size_t new_size, std::size_t old_size)
 {
   return aligned_realloc(ptr, new_size, old_size);
 }
 
+#ifdef EIGEN_NO_MALLOC
+template<> void* conditional_aligned_realloc<false>(void* ptr, std::size_t new_size, std::size_t) = delete;
+#else
 template<> inline void* conditional_aligned_realloc<false>(void* ptr, std::size_t new_size, std::size_t)
 {
-#ifdef EIGEN_NO_MALLOC
-  eigen_assert(false && "heap reallocation is forbidden (EIGEN_NO_MALLOC is defined)");
-#else
   return std::realloc(ptr, new_size);
-#endif
 }
+#endif
 
 /*****************************************************************************
 *** Construction/destruction of array elements                             ***
